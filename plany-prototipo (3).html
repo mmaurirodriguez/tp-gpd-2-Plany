@@ -1,0 +1,1044 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plany · Prototipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --coral:#EE4B4B; --coral-2:#F26B6B; --coral-soft:#FDE8E6; --coral-ink:#B92F2F;
+  --cream:#F1EFEA; --paper:#FFFFFF; --ink:#2B2B2E; --ink-2:#5E5E66; --ink-3:#9A9AA2;
+  --line:#E7E3DC; --green:#2E9E6B; --green-soft:#E3F4EC; --amber:#C98512; --amber-soft:#FBF0DA;
+  --blue:#3C6FD8; --blue-soft:#E7EEFB;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Lexend',system-ui,sans-serif;background:var(--cream);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select{font-family:inherit}
+
+/* ---------- Stage ---------- */
+.stage{min-height:100%;display:flex;align-items:center;justify-content:center;gap:56px;padding:32px 16px;position:relative;overflow:hidden}
+.swirl{position:fixed;pointer-events:none;opacity:.55;z-index:0}
+.side{max-width:330px;position:relative;z-index:1}
+.side .eyebrow{display:inline-block;border:1.5px solid var(--coral);color:var(--coral);border-radius:999px;padding:4px 14px;font-size:13px;margin-bottom:18px}
+.side h1{font-size:64px;line-height:1;color:var(--coral);font-weight:700;letter-spacing:-1.5px}
+.side p.lead{margin:12px 0 28px;color:var(--ink-2);font-size:15px;line-height:1.5}
+.flow{list-style:none;display:flex;flex-direction:column;gap:4px}
+.flow li{display:flex;gap:12px;align-items:center;padding:9px 12px;border-radius:12px;font-size:14px;color:var(--ink-3);transition:.25s}
+.flow li .n{width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font-size:12px;flex:none}
+.flow li.done{color:var(--ink-2)}
+.flow li.done .n{background:var(--ink-2);border-color:var(--ink-2);color:#fff}
+.flow li.on{background:var(--paper);color:var(--coral);font-weight:500;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.flow li.on .n{background:var(--coral);border-color:var(--coral);color:#fff}
+.side .ctrl{display:flex;gap:10px;margin-top:24px}
+.btn-ghost{border:1.5px solid var(--ink-3);color:var(--ink-2);border-radius:999px;padding:8px 16px;font-size:13px}
+.btn-ghost:hover{border-color:var(--coral);color:var(--coral)}
+.side .foot{margin-top:28px;font-size:12px;color:var(--ink-3)}
+
+/* ---------- Phone ---------- */
+.phone-wrap{position:relative;z-index:1;flex:none;width:390px;height:844px}
+.phone{position:absolute;top:0;left:0;transform-origin:top left;width:390px;height:844px;background:#111;border-radius:52px;padding:12px;box-shadow:0 30px 80px rgba(80,30,30,.18),0 0 0 2px #2a2a2a inset}
+.device{position:relative;width:100%;height:100%;background:var(--cream);border-radius:41px;overflow:hidden;display:flex;flex-direction:column}
+.statusbar{height:46px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:6px 28px 0;font-size:14px;font-weight:600;position:relative;z-index:5}
+.notch{position:absolute;left:50%;top:9px;transform:translateX(-50%);width:110px;height:30px;background:#111;border-radius:20px}
+.sb-icons{display:flex;gap:6px;align-items:center}
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.tabbar{flex:none;height:78px;background:var(--paper);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 6px 22px}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:var(--ink-3);width:64px}
+.tabbar button.on{color:var(--coral)}
+.tabbar svg{width:22px;height:22px}
+.tabbar .newdot{position:relative}
+.tabbar .newdot::after{content:"";position:absolute;top:-1px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--coral);border:2px solid #fff}
+
+@media (max-width:0px){
+  .stage{padding:0}
+  .swirl{display:none}
+  .phone-wrap{width:100vw;height:100vh;height:100dvh}
+  .phone{position:relative;width:100%;height:100%;border-radius:0;padding:0;box-shadow:none;background:var(--cream);transform:none!important}
+  .device{border-radius:0}
+  .notch{display:none}
+}
+.locchip{display:inline-flex;gap:5px;align-items:center;padding:6px 11px;border-radius:999px;background:var(--paper);font-size:12.5px;color:var(--ink);font-weight:500;max-width:100%}
+.locchip svg{flex:none}
+.search{display:flex;align-items:center;gap:10px;height:50px;border-radius:16px;background:var(--cream);padding:0 14px;margin:14px 0 6px;color:var(--ink-3);border:1.5px solid transparent;flex:none}
+.search:focus-within{border-color:var(--coral);background:#fff}
+.search input{flex:1;border:none;outline:none;background:transparent;font-size:15px;color:var(--ink);min-width:0}
+.search button{width:28px;height:28px;place-items:center;border-radius:50%}
+.lrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 8px;border-radius:14px;cursor:pointer;transition:background .15s}
+.lrow:hover{background:var(--cream)}
+.lrow.on{background:#FFF4F2}
+.lrow .lic{width:40px;height:40px;border-radius:13px;background:var(--cream);display:grid;place-items:center;flex:none;color:var(--ink)}
+.lrow.on .lic{background:var(--coral-soft);color:var(--coral)}
+.lrow.add .lic{border:1.5px dashed var(--ink-3);background:transparent;color:var(--ink-2)}
+.lrow .lt{flex:1;min-width:0}
+.lrow .lt b{display:block;font-weight:500;font-size:14px}
+.lrow .lt small{display:block;color:var(--ink-3);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow mark{background:none;color:var(--coral);font-weight:600}
+.ldel{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--ink-3);flex:none}
+.ldel:hover{background:var(--coral-soft);color:var(--coral)}
+.lsave{display:inline-flex;gap:5px;align-items:center;padding:6px 10px;border-radius:999px;border:1.5px solid var(--line);font-size:12px;color:var(--ink-2);flex:none}
+.lsave:hover{border-color:var(--coral);color:var(--coral)}
+.pk{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;background:var(--paper);border-radius:22px;padding:16px;margin-bottom:12px;border:1.5px solid transparent;transition:.2s}
+.pk:hover{border-color:var(--coral)}
+.pk .avatar{flex:none}
+.pk .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+}
+
+/* ---------- Generic UI ---------- */
+.pad{padding:8px 20px 28px}
+.h-title{font-size:24px;font-weight:600;letter-spacing:-.4px;line-height:1.2}
+.muted{color:var(--ink-2)}
+.small{font-size:12.5px}
+.card{background:var(--paper);border-radius:20px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;border-radius:16px;font-size:15.5px;font-weight:500;transition:transform .1s, opacity .2s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--coral);color:#fff}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.btn-secondary{background:transparent;color:var(--ink-2)}
+.btn-outline{border:1.5px solid var(--coral);color:var(--coral);background:var(--paper)}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:500}
+.chip.green{background:var(--green-soft);color:var(--green)}
+.chip.coral{background:var(--coral-soft);color:var(--coral-ink)}
+.chip.amber{background:var(--amber-soft);color:var(--amber)}
+.chip.blue{background:var(--blue-soft);color:var(--blue)}
+.chip.gray{background:#EEECE7;color:var(--ink-2)}
+.fade-in{animation:fadeIn .35s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.topnav{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 8px;height:48px}
+.topnav .back{width:40px;height:40px;border-radius:50%;display:grid;place-items:center}
+.topnav .back:hover{background:rgba(0,0,0,.05)}
+.topnav .ttl{font-weight:500;font-size:15px}
+.topnav .right{margin-left:auto}
+
+/* ---------- Home ---------- */
+.home-head{padding:6px 20px 0;display:flex;align-items:center;gap:12px}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--coral-soft);color:var(--coral);display:grid;place-items:center;font-weight:600}
+.cred{margin:18px 20px 0;border-radius:22px;padding:18px;color:#fff;background:linear-gradient(135deg,#3A3A40,#1F1F24);position:relative;overflow:hidden}
+.cred::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;border:22px solid rgba(238,75,75,.55)}
+.cred .lbl{font-size:11px;opacity:.65;letter-spacing:.5px;text-transform:uppercase}
+.grid-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:18px 20px 0}
+.qa{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-2)}
+.qa .ic{width:56px;height:56px;border-radius:18px;background:var(--paper);display:grid;place-items:center;color:var(--ink)}
+.qa.new .ic{background:var(--coral);color:#fff;position:relative}
+.qa.new .ic::after{content:"NUEVO";position:absolute;top:-7px;right:-8px;font-size:8.5px;font-weight:700;background:var(--ink);color:#fff;padding:2px 5px;border-radius:6px}
+.section-t{padding:22px 20px 10px;font-weight:600;font-size:16px;display:flex;justify-content:space-between;align-items:baseline}
+.section-t a{font-size:12.5px;color:var(--coral);font-weight:500}
+.appt{margin:0 20px;display:flex;gap:14px;align-items:center}
+.appt .date{width:54px;height:58px;border-radius:14px;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none}
+.appt .date b{font-size:20px;line-height:1}
+.appt .date span{font-size:10.5px;color:var(--ink-2);text-transform:uppercase}
+.promo{margin:0 20px;border-radius:22px;padding:18px;background:var(--coral);color:#fff;display:flex;gap:14px;align-items:center;cursor:pointer;position:relative;overflow:hidden}
+.promo::before{content:"";position:absolute;right:-30px;bottom:-60px;width:150px;height:150px;border-radius:50%;border:18px solid rgba(255,255,255,.18)}
+
+/* ---------- Pop-up ---------- */
+.overlay{position:absolute;inset:0;background:rgba(20,15,15,.45);z-index:20;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+.overlay.show{opacity:1;pointer-events:auto}
+.overlay.center{align-items:center;justify-content:center;padding:22px}
+.sheet{width:100%;background:var(--paper);border-radius:28px 28px 0 0;padding:10px 20px 30px;transform:translateY(100%);transition:transform .38s cubic-bezier(.2,.9,.25,1);max-height:92%;overflow-y:auto}
+.overlay.show .sheet{transform:none}
+.grab{width:40px;height:5px;border-radius:5px;background:var(--line);margin:0 auto 14px}
+.popup{width:100%;background:var(--paper);border-radius:28px;overflow:hidden;transform:scale(.9);opacity:0;transition:.35s cubic-bezier(.2,.9,.25,1)}
+.overlay.show .popup{transform:none;opacity:1}
+.popup-hero{background:var(--coral);color:#fff;padding:26px 22px 22px;position:relative;overflow:hidden}
+.popup-hero svg.wave{position:absolute;right:-20px;top:-10px;opacity:.35}
+.popup-hero .tag{display:inline-block;background:rgba(255,255,255,.2);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:600;letter-spacing:.6px}
+.popup-hero h2{font-size:44px;font-weight:700;letter-spacing:-1px;margin-top:10px;line-height:1}
+.popup-hero p{font-size:15px;opacity:.95;margin-top:6px;line-height:1.4}
+.popup-body{padding:20px 22px 18px}
+.feat{display:flex;gap:12px;align-items:flex-start;margin-bottom:13px;font-size:14px;line-height:1.35}
+.feat .fi{width:34px;height:34px;border-radius:11px;background:var(--coral-soft);color:var(--coral);display:grid;place-items:center;flex:none}
+.feat b{font-weight:500}
+.close-x{position:absolute;right:14px;top:14px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;display:grid;place-items:center;z-index:2}
+
+/* ---------- Consent ---------- */
+.hero-mini{padding:4px 20px 0}
+.hero-mini .logo{font-size:34px;color:var(--coral);font-weight:700;letter-spacing:-1px}
+.list-check{display:flex;flex-direction:column;gap:12px;margin:18px 0}
+.list-check div{display:flex;gap:10px;font-size:14px;line-height:1.4;color:var(--ink-2)}
+.list-check svg{flex:none;color:var(--green);margin-top:2px}
+.checkrow{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:16px;background:var(--paper);border:1.5px solid var(--line);cursor:pointer;font-size:13.5px;line-height:1.4;color:var(--ink-2);transition:.2s}
+.checkrow.on{border-color:var(--coral);background:#FFF8F7}
+.box{width:22px;height:22px;border-radius:7px;border:2px solid var(--ink-3);flex:none;display:grid;place-items:center;transition:.2s;margin-top:1px}
+.checkrow.on .box{background:var(--coral);border-color:var(--coral);color:#fff}
+.box svg{opacity:0}
+.checkrow.on .box svg{opacity:1}
+
+/* ---------- Form ---------- */
+.progress{display:flex;gap:6px;padding:0 20px;margin:4px 0 18px}
+.progress span{flex:1;height:5px;border-radius:5px;background:#E2DED6;overflow:hidden;position:relative}
+.progress span.on{background:var(--coral);transition:background .3s}
+@keyframes grow{from{transform:translateX(-100%)}to{transform:none}}
+.q{margin-bottom:20px}
+.q label.ql{display:block;font-size:14px;font-weight:500;margin-bottom:9px}
+.q .hint{font-size:12px;color:var(--ink-3);font-weight:400;margin-left:4px}
+.inp{width:100%;height:50px;border-radius:14px;border:1.5px solid var(--line);background:var(--paper);padding:0 14px;font-size:15px;color:var(--ink);outline:none;transition:.2s}
+.inp:focus{border-color:var(--coral)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.opt{padding:11px 15px;border-radius:14px;background:var(--paper);border:1.5px solid var(--line);font-size:13.5px;color:var(--ink-2);transition:.18s}
+.opt.on{border-color:var(--coral);background:var(--coral-soft);color:var(--coral-ink);font-weight:500}
+.unit{position:relative}
+.unit span{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--ink-3)}
+.fixed-cta{position:sticky;bottom:0;padding:14px 20px 18px;background:linear-gradient(to top,var(--cream) 70%,rgba(241,239,234,0))}
+
+/* ---------- Loading ---------- */
+.loading{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
+.orb{width:110px;height:110px;border-radius:50%;position:relative;margin-bottom:30px}
+.orb::before,.orb::after{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid var(--coral);opacity:.25;animation:pulse 1.8s ease-out infinite}
+.orb::after{animation-delay:.9s}
+.orb .core{position:absolute;inset:22px;border-radius:50%;background:var(--coral);display:grid;place-items:center;color:#fff}
+@keyframes pulse{from{transform:scale(.7);opacity:.6}to{transform:scale(1.35);opacity:0}}
+.steps-l{margin-top:26px;display:flex;flex-direction:column;gap:12px;text-align:left;width:100%;max-width:280px}
+.steps-l div{display:flex;gap:10px;align-items:center;font-size:13.5px;color:var(--ink-3);transition:.3s}
+.steps-l div.ok{color:var(--ink)}
+.steps-l .dot{width:20px;height:20px;border-radius:50%;border:2px solid currentColor;display:grid;place-items:center;flex:none}
+.steps-l div.ok .dot{background:var(--green);border-color:var(--green);color:#fff}
+.steps-l div.run .dot{border-color:var(--coral);border-right-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- Results ---------- */
+.res-head{margin:0 20px;border-radius:24px;background:var(--coral);color:#fff;padding:20px;position:relative;overflow:hidden}
+.res-head::after{content:"";position:absolute;right:-50px;top:-50px;width:170px;height:170px;border-radius:50%;border:20px solid rgba(255,255,255,.16)}
+.res-head .big{font-size:40px;font-weight:700;line-height:1}
+.ring{display:flex;gap:16px;align-items:center;margin-top:14px;position:relative;z-index:1}
+.stat{background:rgba(255,255,255,.16);border-radius:14px;padding:9px 12px;font-size:11.5px;flex:1}
+.stat b{display:block;font-size:18px}
+.disclaimer{margin:14px 20px 0;display:flex;gap:10px;padding:12px 14px;border-radius:14px;background:var(--blue-soft);color:#2F4E95;font-size:12px;line-height:1.45}
+.disclaimer svg{flex:none;margin-top:1px}
+.tabs{display:flex;margin:18px 20px 4px;background:#E6E2DA;border-radius:14px;padding:4px}
+.tabs button{flex:1;height:38px;border-radius:11px;font-size:13.5px;color:var(--ink-2);font-weight:500}
+.tabs button.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.grp-t{padding:16px 20px 8px;font-size:12px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.7px;display:flex;align-items:center;gap:8px}
+.rec{margin:0 20px 12px;background:var(--paper);border-radius:20px;padding:16px;transition:.3s}
+.rec.gone{opacity:0;transform:translateX(60px);height:0;padding:0;margin-bottom:0;overflow:hidden}
+.rec-top{display:flex;gap:12px}
+.rec-ic{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;flex:none;background:var(--coral-soft);color:var(--coral)}
+.rec-ic.m{background:var(--amber-soft);color:var(--amber)}
+.rec-ic.h{background:var(--green-soft);color:var(--green)}
+.rec h3{font-size:15.5px;font-weight:500;line-height:1.3}
+.rec .meta{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+.rec .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.why-btn{margin-top:12px;font-size:12.5px;color:var(--blue);font-weight:500;display:flex;align-items:center;gap:5px}
+.why{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.why.open{max-height:420px}
+.why-in{margin-top:10px;padding:12px;border-radius:12px;background:var(--cream);font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.why-in b{color:var(--ink);font-weight:500}
+.rec-act{display:flex;gap:8px;margin-top:14px}
+.rec-act .btn{height:42px;font-size:13.5px;border-radius:12px}
+.rec-act .btn-primary{flex:1.4}
+.rec-act .btn-outline{flex:1;border-color:var(--line);color:var(--ink-2)}
+.rec.booked .rec-act{display:none}
+.booked-bar{display:none;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--green-soft);color:var(--green);font-size:12.5px;font-weight:500;gap:8px;align-items:center}
+.rec.booked .booked-bar{display:flex}
+.upd{margin:0 20px 12px;background:var(--paper);border:1.5px solid var(--green-soft);border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;line-height:1.4;font-size:13px;color:var(--ink-2)}
+.upd .ok{width:26px;height:26px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center;flex:none}
+
+/* Calendar */
+.tl{padding:8px 20px 20px}
+.tl-m{display:flex;gap:14px}
+.tl-m .rail{display:flex;flex-direction:column;align-items:center;width:52px;flex:none}
+.tl-m .mon{font-size:12px;font-weight:600;color:var(--coral);text-transform:uppercase;background:var(--coral-soft);padding:5px 0;border-radius:10px;width:100%;text-align:center}
+.tl-m .line{flex:1;width:2px;background:#DCD7CE;margin:4px 0}
+.tl-items{flex:1;padding-bottom:18px;display:flex;flex-direction:column;gap:8px}
+.tl-it{background:var(--paper);border-radius:14px;padding:11px 13px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tl-it small{display:block;color:var(--ink-3);font-size:11.5px}
+
+/* Booking sheet */
+.sheet h3{font-size:19px;font-weight:600}
+.lbl-s{font-size:13px;font-weight:500;margin:18px 0 9px;color:var(--ink-2)}
+.center{display:flex;gap:12px;align-items:center;padding:12px 14px;border:1.5px solid var(--line);border-radius:16px;margin-bottom:8px;width:100%;text-align:left;transition:.2s}
+.center.on{border-color:var(--coral);background:#FFF8F7}
+.center .rd{width:20px;height:20px;border-radius:50%;border:2px solid var(--ink-3);flex:none;position:relative}
+.center.on .rd{border-color:var(--coral)}
+.center.on .rd::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--coral)}
+.center b{font-weight:500;font-size:14px;display:block}
+.center small{color:var(--ink-3);font-size:12px}
+.days{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.days::-webkit-scrollbar{display:none}
+.day{flex:none;width:58px;padding:9px 0;border-radius:14px;border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;font-size:11px;color:var(--ink-2);transition:.2s}
+.day b{font-size:18px;color:var(--ink);font-weight:600}
+.day.on{background:var(--coral);border-color:var(--coral);color:#fff}
+.day.on b{color:#fff}
+.times{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.time{height:40px;border-radius:12px;border:1.5px solid var(--line);font-size:13.5px;transition:.2s}
+.time.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.time:disabled{opacity:.35;text-decoration:line-through;cursor:not-allowed}
+.prep{margin-top:16px;padding:12px 14px;background:var(--amber-soft);color:#7A5310;border-radius:14px;font-size:12.5px;line-height:1.45;display:flex;gap:10px}
+
+/* Success */
+.success{padding:30px 22px;text-align:center}
+.tick{width:92px;height:92px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;margin:20px auto 22px;animation:pop .5s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.ticket{background:var(--paper);border-radius:22px;padding:18px;text-align:left;margin:22px 0 16px}
+.ticket .r{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.ticket .r:last-child{border:none}
+.ticket .r span{color:var(--ink-3)}
+.ticket .r b{font-weight:500;text-align:right}
+
+/* Feedback "ya me lo hice" */
+.fb-opts{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.fb-opts .opt{text-align:left;border-radius:14px;padding:13px 15px}
+
+.toast{position:absolute;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:14px;font-size:13px;opacity:0;transition:.3s;z-index:40;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ===== Responsive: app a pantalla completa ===== */
+html,body{height:100%;overflow:hidden}
+.stage{padding:0;display:block;height:100%}
+.swirl{display:none}
+.phone-wrap{width:100%;height:100%}
+.phone{position:relative;width:100%;height:100%;border-radius:0;padding:0;box-shadow:none;background:var(--cream);transform:none}
+.device{border-radius:0;height:100%}
+.statusbar{display:none}
+.screen{padding-top:env(safe-area-inset-top)}
+.page{min-height:100%;padding-top:8px}
+.page-loading{height:100%}
+.tabbar{display:flex;height:auto;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+.hcol,.colL,.colR{min-width:0}
+@media (min-width:900px){
+  .device{display:grid;grid-template-columns:248px 1fr;grid-template-rows:100%}
+  .device.notabs{grid-template-columns:1fr}
+  .screen{grid-column:-2/-1;grid-row:1}
+  .tabbar{grid-column:1;grid-row:1;flex-direction:column;justify-content:flex-start;gap:4px;border-top:none;border-right:1px solid var(--line);padding:28px 16px}
+  .tabbar::before{content:"Plany";font-size:34px;font-weight:700;color:var(--coral);letter-spacing:-1px;padding:0 14px 22px}
+  .tabbar button{flex-direction:row;width:100%;gap:12px;font-size:14.5px;padding:11px 14px;border-radius:12px;justify-content:flex-start}
+  .tabbar button:hover{background:var(--cream)}
+  .tabbar button.on{background:var(--coral-soft);font-weight:500}
+  .page{max-width:1120px;margin:0 auto;padding:28px 36px 40px}
+  .page-consent,.page-success{max-width:600px}
+  .page-picker{max-width:1040px}
+  .page-loading{max-width:none}
+  .topnav{padding-left:0;padding-right:0;margin-bottom:8px}
+  .home-head,.grid-actions,.section-t{padding-left:0;padding-right:0}
+  .home-head{padding-top:0}
+  .home-head + div{padding-left:0!important;padding-right:0!important}
+  .hcols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:start}
+  .hcol > *{margin-left:0!important;margin-right:0!important}
+  .hcol .section-t:first-child{padding-top:12px}
+  .cred{padding:24px;min-height:170px}
+  .colL{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:stretch}
+  .colL > *{margin:0!important}
+  .colL .res-head{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:32px;padding:24px 28px}
+  .colL .res-head > div:nth-child(2){margin-top:4px!important}
+  .colL .res-head .big{font-size:56px}
+  .colL .res-head .ring{margin-top:0;flex:0 0 420px}
+  .colL .res-head > div:first-child{position:absolute!important;top:22px;left:28px}
+  .colL .res-head{min-height:150px;align-items:flex-end}
+  .colL .donebn{grid-column:1/-1;order:3}
+  .colL .disclaimer{order:1}
+  .colL .profcard{order:2}
+  .colL .disclaimer{align-items:center}
+  .colL .profcard{align-self:start}
+  .colR{margin-top:26px}
+  .colR > *{margin-left:0!important;margin-right:0!important}
+  .colR .tl, .colR .grp-t{padding-left:0;padding-right:0}
+  .colR .tabs{margin-top:0;max-width:420px}
+  .colR .grp-t{padding-top:22px}
+  .rgrid{display:flex;flex-direction:column;gap:12px}
+  .rgrid .rec{margin:0;display:grid;grid-template-columns:minmax(0,1fr) 200px;column-gap:28px;padding:18px 22px}
+  .rgrid .rec > *{grid-column:1}
+  .rgrid .rec .chips, .rgrid .rec .why-btn, .rgrid .rec .why{margin-left:58px}
+  .rgrid .rec .rec-act, .rgrid .rec .booked-bar{grid-column:2;grid-row:1/span 4;align-self:center;margin-top:0}
+  .rgrid .rec .rec-act{flex-direction:column;gap:8px}
+  .rgrid .rec .rec-act .btn{flex:none;width:100%}
+  .rgrid .rec .booked-bar{flex-direction:column;align-items:flex-start;text-align:left}
+  .ugrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+  .ugrid .upd{margin:0}
+  .colR .tl{max-width:760px}
+  .pkgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:8px}
+  .pk{flex-direction:column;margin:0;padding:22px;height:100%}
+  .page-picker .h-title{font-size:30px}
+  .fixed-cta{padding-left:0;padding-right:0;position:static;background:none}
+  .overlay{align-items:center;justify-content:center;padding:32px}
+  .sheet{width:min(520px,100%);border-radius:24px;padding:22px 26px 24px;transform:translateY(24px) scale(.97);opacity:0;transition:transform .3s cubic-bezier(.2,.9,.25,1),opacity .25s}
+  .overlay.show .sheet{opacity:1}
+  .grab{display:none}
+  .popup{max-width:440px}
+  .toast{bottom:32px}
+  .success .tick{margin-top:0}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <svg class="swirl" style="right:-120px;top:-80px" width="520" height="520" viewBox="0 0 520 520" fill="none"><path d="M60 40c120 0 200 80 160 180s40 200 180 160 120 120 120 120" stroke="#F26B6B" stroke-width="34" stroke-linecap="round" opacity=".55"/></svg>
+  <svg class="swirl" style="left:-160px;bottom:-160px" width="520" height="520" viewBox="0 0 520 520" fill="none"><path d="M40 480c40-160 180-120 200-260S400 60 480 40" stroke="#F6B5AE" stroke-width="40" stroke-linecap="round" opacity=".5"/></svg>
+
+
+
+  <div class="phone-wrap"><div class="phone">
+    <div class="device" id="device">
+      <div class="statusbar"><span id="clock">9:41</span><div class="notch"></div>
+        <div class="sb-icons">
+          <svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="currentColor" opacity=".4" fill="none"/><rect x="2" y="2" width="16" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx="1" fill="currentColor" opacity=".4"/></svg>
+        </div>
+      </div>
+      <div class="screen" id="screen"></div>
+      <div class="tabbar" id="tabbar"></div>
+      <div class="overlay" id="overlay"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+  </div></div>
+</div>
+
+<script>
+/* ================= ICONS ================= */
+const I = {
+  back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  card:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6 15h4"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+  map:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  pill:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="8.5" width="18" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M9.5 9.5l5 5"/></svg>',
+  cash:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/></svg>',
+  flask:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9V3"/><path d="M7 15h10"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+  plany:'<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M8.5 11.5h2l1-2 1.5 4 1-2h1.5"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M8.5 11.5h2l1-2 1.5 4 1-2h1.5"/></svg>',
+  steth:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v5a4 4 0 0 0 8 0V3"/><path d="M10 12v3a5 5 0 0 0 10 0v-2"/><circle cx="20" cy="11" r="2"/></svg>',
+  eye:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  tooth:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3c-2.5 0-4 2-4 4.5 0 3 1.5 4.5 2 7 .5 3 1 6.5 3 6.5s2-4 4-4 2 4 4 4 2.5-3.5 3-6.5c.5-2.5 2-4 2-7C21 5 19.5 3 17 3c-2 0-3 1-5 1S9 3 7 3z"/></svg>',
+  ribbon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-2 0-3.5 1.5-3.5 3.5 0 2.5 2 5 3.5 7 1.5-2 3.5-4.5 3.5-7C15.5 4.5 14 3 12 3z"/><path d="M10 12l-4 9 3-1 1.5 2.5L12 14M14 12l4 9-3-1-1.5 2.5L12 14"/></svg>',
+  lungs:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v8M12 11c-1 1-2 1.5-3 1.5M12 11c1 1 2 1.5 3 1.5"/><path d="M8.5 7C5 7 3 12 3 16.5 3 19 4.5 20 6.5 20S10 18.5 10 16v-6.5C10 8 9.5 7 8.5 7zM15.5 7C19 7 21 12 21 16.5c0 2.5-1.5 3.5-3.5 3.5S14 18.5 14 16v-6.5C14 8 14.5 7 15.5 7z"/></svg>',
+  apple:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7c-1.5-1-5-1.5-6.5 1.5S5 16 7 19s3.5 2 5 1.5c1.5.5 3 1.5 5-1.5s3-7.5 1.5-10.5S13.5 6 12 7z"/><path d="M12 7c0-2 1-3.5 3-4"/></svg>',
+  sun:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  syringe:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2l4 4M20 4l-4 4M15 5l4 4-10 10H5v-4z"/><path d="M8 12l2 2M11 9l2 2M2 22l3-3"/></svg>',
+  check:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  checkC:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 10"/></svg>',
+  info:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg>',
+  spark:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z"/></svg>',
+  lock:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  bell:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
+  x:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  chev:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>',
+  work:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>',
+  star:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>',
+  search:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
+  gps:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  arrow:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+};
+
+/* ================= STATE ================= */
+const today = new Date();
+const MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const MESL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DIA = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+let S, recs = [], view = 'recs';
+/* Datos que la app ya tiene del afiliado (perfil + historia clínica de la red) */
+const PROFILES = [
+  {name:'Mariana', age:42, sex:'F', height:164, weight:71, plan:'SMG 30', loc:0, fam:['mama','diabetes'], cond:['colesterol'], smoke:'ex', activity:'baja', last:'>2',
+   hist:[{key:'odonto', date:'2026-05-20', where:'Centro Médico Belgrano'}], upcoming:[],
+   blurb:'Antecedente familiar de cáncer de mama. Hace más de 2 años que no se hace un chequeo.'},
+  {name:'Mauri', age:52, sex:'M', height:178, weight:84, plan:'SMG 40', loc:3, fam:['cardio'], cond:['hta'], smoke:'si', activity:'media', last:'1-2',
+   hist:[{key:'lab', date:'2026-01-15', where:'Clínica Olivos'}], upcoming:[{key:'odonto', inDays:12, where:'Clínica Olivos', time:'16:00'}],
+   blurb:'Fuma y tiene presión alta. Ya tiene un turno de odontología sacado.'},
+  {name:'Sofía', age:29, sex:'F', height:160, weight:56, plan:'SMG 20', loc:1, fam:[], cond:[], smoke:'no', activity:'alta', last:'<1',
+   hist:[{key:'clinico', date:'2026-04-08', where:'Centro Médico Palermo', incl:['lab','cardio']}, {key:'pap', date:'2026-06-03', where:'Centro Médico Palermo'}], upcoming:[],
+   blurb:'Sana y activa. Ya se hizo el chequeo clínico completo este año.'},
+];
+const LOCS = [
+  {n:'Belgrano, CABA', c:[{n:'Centro Médico Belgrano',dist:'1,2 km',addr:'Av. Cabildo 1450'},{n:'Centro Médico Núñez',dist:'2,6 km',addr:'Av. del Libertador 7200'},{n:'Centro Médico Palermo',dist:'4,1 km',addr:'Av. Santa Fe 3800'}]},
+  {n:'Palermo, CABA', c:[{n:'Centro Médico Palermo',dist:'0,8 km',addr:'Av. Santa Fe 3800'},{n:'Centro Médico Recoleta',dist:'2,3 km',addr:'Av. Pueyrredón 1700'},{n:'Centro Médico Belgrano',dist:'4,0 km',addr:'Av. Cabildo 1450'}]},
+  {n:'Caballito, CABA', c:[{n:'Centro Médico Caballito',dist:'0,9 km',addr:'Av. Rivadavia 5100'},{n:'Centro Médico Almagro',dist:'2,1 km',addr:'Av. Corrientes 4000'},{n:'Centro Médico Flores',dist:'3,4 km',addr:'Av. Rivadavia 6900'}]},
+  {n:'Olivos, Vicente López', c:[{n:'Clínica Olivos',dist:'1,1 km',addr:'Av. Maipú 1660'},{n:'Centro Médico Martínez',dist:'3,0 km',addr:'Av. Santa Fe 1500'},{n:'Centro Médico Núñez',dist:'5,2 km',addr:'Av. del Libertador 7200'}]},
+  {n:'La Plata', c:[{n:'Centro Médico La Plata',dist:'1,0 km',addr:'Calle 7 N.º 900'},{n:'Centro Médico Tolosa',dist:'4,4 km',addr:'Calle 1 N.º 520'},{n:'Centro Médico City Bell',dist:'9,5 km',addr:'Calle 14 N.º 400'}]},
+  {n:'Córdoba Capital', c:[{n:'Centro Médico Nueva Córdoba',dist:'1,3 km',addr:'Av. H. Yrigoyen 300'},{n:'Centro Médico General Paz',dist:'3,2 km',addr:'Av. 24 de Septiembre 1200'},{n:'Centro Médico Cerro',dist:'5,8 km',addr:'Av. Rafael Núñez 4500'}]},
+  {n:'Rosario', c:[{n:'Centro Médico Rosario Centro',dist:'0,7 km',addr:'Bv. Oroño 1100'},{n:'Centro Médico Pichincha',dist:'1,9 km',addr:'Av. Wheelwright 1600'},{n:'Centro Médico Fisherton',dist:'6,2 km',addr:'Av. Eva Perón 8000'}]},
+  {n:'Microcentro, CABA', c:[{n:'Centro Médico Microcentro',dist:'0,6 km',addr:'Av. Corrientes 1100'},{n:'Centro Médico Congreso',dist:'1,8 km',addr:'Av. Callao 300'},{n:'Centro Médico Recoleta',dist:'2,9 km',addr:'Av. Pueyrredón 1700'}]},
+];
+/* ===== Ubicación: buscador + ubicaciones guardadas ===== */
+const PLACES = [
+  {n:'Av. Cabildo 2040', s:'Belgrano, CABA', z:0},
+  {n:'Juramento 2500', s:'Belgrano, CABA', z:0},
+  {n:'Av. Congreso 2100', s:'Belgrano, CABA', z:0},
+  {n:'Belgrano', s:'Barrio · CABA', z:0},
+  {n:'Av. Santa Fe 3500', s:'Palermo, CABA', z:1},
+  {n:'Gorriti 4800', s:'Palermo, CABA', z:1},
+  {n:'Av. Scalabrini Ortiz 1900', s:'Palermo, CABA', z:1},
+  {n:'Palermo', s:'Barrio · CABA', z:1},
+  {n:'Av. Rivadavia 5000', s:'Caballito, CABA', z:2},
+  {n:'Av. Pedro Goyena 800', s:'Caballito, CABA', z:2},
+  {n:'Caballito', s:'Barrio · CABA', z:2},
+  {n:'Av. Corrientes 1200', s:'San Nicolás, CABA', z:7},
+  {n:'Florida 500', s:'Microcentro, CABA', z:7},
+  {n:'Microcentro', s:'Barrio · CABA', z:7},
+  {n:'Av. Maipú 1500', s:'Olivos, Vicente López', z:3},
+  {n:'Av. del Libertador 2500', s:'Olivos, Vicente López', z:3},
+  {n:'Olivos', s:'Vicente López, Buenos Aires', z:3},
+  {n:'Calle 7 N.º 800', s:'La Plata, Buenos Aires', z:4},
+  {n:'La Plata', s:'Ciudad · Buenos Aires', z:4},
+  {n:'Av. Colón 500', s:'Córdoba Capital', z:5},
+  {n:'Nueva Córdoba', s:'Barrio · Córdoba Capital', z:5},
+  {n:'Bv. Oroño 900', s:'Rosario, Santa Fe', z:6},
+  {n:'Rosario', s:'Ciudad · Santa Fe', z:6},
+];
+const SAVED = [
+  [{id:1,tag:'casa',name:'Casa',addr:'Av. Cabildo 2040, Belgrano',z:0},{id:2,tag:'trabajo',name:'Trabajo',addr:'Av. Corrientes 1200, San Nicolás',z:7}],
+  [{id:1,tag:'casa',name:'Casa',addr:'Av. Maipú 1500, Olivos',z:3},{id:2,tag:'trabajo',name:'Trabajo',addr:'Av. Santa Fe 3500, Palermo',z:1}],
+  [{id:1,tag:'casa',name:'Casa',addr:'Gorriti 4800, Palermo',z:1}],
+];
+let savedSeq = 100, locFromBooking = false, locPending = null, locTag = 'casa';
+const norm = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[.,º°]/g,' ');
+const ico = (svg,sz) => svg.replace(/width="\d+" height="\d+"/,'').replace('<svg ',`<svg width="${sz}" height="${sz}" `);
+const TAGICON = {casa:I.home, trabajo:I.work, otro:I.star};
+function savedList(){ return SAVED[profIdx]; }
+function locChip(){
+  const icon = S.loc.tag ? TAGICON[S.loc.tag] : I.map;
+  return `<button class="locchip" onclick="openLoc(false)">${ico(icon,14)}<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${S.loc.label}</span>${I.chev}</button>`;
+}
+function openLoc(fromBooking){
+  locFromBooking = fromBooking; locPending = null;
+  overlay.className='overlay';
+  overlay.innerHTML = `<div class="sheet" style="height:86%;display:flex;flex-direction:column">
+    <div class="grab"></div>
+    <h3>¿Dónde buscamos turnos?</h3>
+    <p class="muted small" style="margin-top:4px">Te mostramos los centros de la red más cercanos a esta ubicación.</p>
+    <div class="search">${ico(I.search,18)}<input id="locq" autocomplete="off" placeholder="Buscá una dirección, barrio o ciudad" oninput="locRender()"><button id="locclr" onclick="document.getElementById('locq').value='';locRender();document.getElementById('locq').focus()" style="display:none;color:var(--ink-3)">${I.x}</button></div>
+    <div id="locres" style="flex:1;overflow-y:auto;margin:0 -4px;padding:0 4px"></div>
+    <button class="btn btn-secondary" style="height:44px;flex:none" onclick="${fromBooking?'drawBooking()':'closeOverlay()'}">Cancelar</button>
+  </div>`;
+  locRender();
+  requestAnimationFrame(()=>overlay.classList.add('show'));
+}
+function locRender(){
+  const box=document.getElementById('locres'); if(!box) return;
+  const q=(document.getElementById('locq').value||'').trim();
+  document.getElementById('locclr').style.display = q?'grid':'none';
+  if(locPending) { box.innerHTML = saveForm(); return; }
+  if(!q){
+    const sv=savedList();
+    box.innerHTML = `
+      <button class="lrow" onclick="useGPS()"><span class="lic" style="background:var(--blue-soft);color:var(--blue)">${ico(I.gps,18)}</span><span class="lt"><b style="color:var(--blue)">Usar mi ubicación actual</b><small>Según el GPS de tu celular</small></span></button>
+      <div class="lbl-s">Mis ubicaciones</div>
+      ${sv.map(x=>`<div class="lrow ${S.loc.id===x.id?'on':''}" onclick="useSaved(${x.id})"><span class="lic">${ico(TAGICON[x.tag],18)}</span><span class="lt"><b>${x.name}</b><small>${x.addr}</small></span>${S.loc.id===x.id?`<span style="color:var(--coral)">${I.check}</span>`:''}<button class="ldel" title="Eliminar" onclick="event.stopPropagation();delSaved(${x.id})">${ico(I.trash,16)}</button></div>`).join('')}
+      <button class="lrow add" onclick="document.getElementById('locq').focus();toast('Buscá la dirección y tocá Guardar')"><span class="lic">${ico(I.plus,18)}</span><span class="lt"><b>Agregar ubicación</b><small>Casa, trabajo, la casa de un familiar…</small></span></button>`;
+    return;
+  }
+  const toks=norm(q).split(/\s+/).filter(Boolean);
+  const res=PLACES.map((p,i)=>({p,i})).filter(({p})=>{ const h=norm(p.n+' '+p.s+' '+LOCS[p.z].n); return toks.every(t=>h.includes(t)); }).slice(0,8);
+  box.innerHTML = res.length ? `<div class="lbl-s">Resultados</div>` + res.map(({p,i})=>`<div class="lrow" onclick="usePlace(${i})"><span class="lic">${ico(I.map,18)}</span><span class="lt"><b>${hl(p.n,toks)}</b><small>${p.s} · centro más cercano a ${LOCS[p.z].c[0].dist}</small></span><button class="lsave" onclick="event.stopPropagation();startSave(${i})">${ico(I.star,14)} Guardar</button></div>`).join('')
+    : `<div style="text-align:center;padding:36px 10px;color:var(--ink-3);font-size:13.5px">${ico(I.search,28)}<div style="margin-top:10px;color:var(--ink-2);font-weight:500">No encontramos “${q.replace(/</g,'&lt;')}”</div><div style="margin-top:4px">Probá con una calle y altura, un barrio o una ciudad.</div></div>`;
+}
+function hl(text,toks){ let out=text; toks.forEach(t=>{ const i=norm(out).indexOf(t); if(i>=0 && !out.includes('<')) out=out.slice(0,i)+'<mark>'+out.slice(i,i+t.length)+'</mark>'+out.slice(i+t.length); }); return out; }
+function startSave(i){ locPending=i; locTag='casa'; document.getElementById('locq').blur(); locRender(); }
+function saveForm(){
+  const p=PLACES[locPending], sv=savedList();
+  const exists = locTag!=='otro' && sv.find(x=>x.tag===locTag);
+  const chip=(t,l)=>`<button class="opt ${locTag===t?'on':''}" style="display:inline-flex;gap:6px;align-items:center" onclick="locTag='${t}';locRender()">${ico(TAGICON[t],16)} ${l}</button>`;
+  return `<div class="fade-in" style="padding-top:6px">
+    <button class="lrow" style="pointer-events:none"><span class="lic">${ico(I.map,18)}</span><span class="lt"><b>${p.n}</b><small>${p.s}</small></span></button>
+    <div class="lbl-s">Guardar como</div>
+    <div class="seg">${chip('casa','Casa')}${chip('trabajo','Trabajo')}${chip('otro','Otro')}</div>
+    ${locTag==='otro'?`<input id="locname" class="inp" style="margin-top:12px" placeholder="Nombre, ej: Casa de mamá" maxlength="24">`:''}
+    ${exists?`<div class="small" style="margin-top:12px;color:var(--amber)">Va a reemplazar tu ${exists.name.toLowerCase()} actual (${exists.addr}).</div>`:''}
+    <button class="btn btn-primary" style="margin-top:18px" onclick="confirmSave()">Guardar y usar esta ubicación</button>
+    <button class="btn btn-secondary" style="height:44px" onclick="locPending=null;locRender()">Volver</button>
+  </div>`;
+}
+function confirmSave(){
+  const p=PLACES[locPending], sv=savedList();
+  let name = locTag==='casa'?'Casa':locTag==='trabajo'?'Trabajo':((document.getElementById('locname')||{}).value||'').trim()||p.n;
+  const addr = p.n + ', ' + p.s.split(',')[0].replace('Barrio · ','').replace('Ciudad · ','');
+  let item;
+  if(locTag!=='otro' && (item=sv.find(x=>x.tag===locTag))) Object.assign(item,{addr,z:p.z});
+  else { item={id:++savedSeq, tag:locTag, name, addr, z:p.z}; sv.push(item); }
+  locPending=null;
+  applyLoc({id:item.id, tag:item.tag, label:item.name, addr:item.addr, z:item.z}, `Guardada como “${item.name}”`);
+}
+function delSaved(id){
+  const sv=savedList(), i=sv.findIndex(x=>x.id===id), x=sv[i];
+  sv.splice(i,1);
+  if(S.loc.id===id) S.loc={id:null, tag:null, label:x.addr.split(',')[0], addr:x.addr, z:x.z};
+  locRender(); toast(`Eliminaste “${x.name}”`);
+}
+function useSaved(id){ const x=savedList().find(s=>s.id===id); applyLoc({id:x.id, tag:x.tag, label:x.name, addr:x.addr, z:x.z}); }
+function usePlace(i){ const p=PLACES[i]; applyLoc({id:null, tag:null, label:p.n, addr:p.n+', '+p.s, z:p.z}); }
+function useGPS(){ const z=S.p.loc; applyLoc({id:null, tag:null, label:'Ubicación actual', addr:'Cerca de '+LOCS[z].n, z}, 'Ubicación detectada: '+LOCS[z].n); }
+function applyLoc(loc,msg){
+  S.loc=loc;
+  if(locFromBooking){ S.booking.c=0; S.booking.t=null; drawBooking(); }
+  else { closeOverlay(); const st=screenEl.scrollTop; render(); screenEl.scrollTop=st; }
+  toast(msg || ('Ubicación: '+loc.label));
+}
+
+const EVERY = {clinico:12, lab:12, pap:36, mamo:12, odonto:12, oftalmo:24, cardio:12};
+let profIdx = 0;
+function fresh(){
+  const p = JSON.parse(JSON.stringify(PROFILES[profIdx]));
+  p.done = [...new Set(p.hist.flatMap(h=>[h.key, ...(h.incl||[])]))];
+  const booked = {};
+  p.upcoming.forEach(u=>{
+    const d=new Date(today); d.setDate(d.getDate()+u.inDays); if(d.getDay()===0) d.setDate(d.getDate()+1);
+    booked[u.key] = {pre:true, center:u.where, centerD:'', time:u.time, date:d, dayLabel:`${DIA[d.getDay()]} ${d.getDate()} ${MES[d.getMonth()]}`, monthOff:(d.getFullYear()-today.getFullYear())*12+d.getMonth()-today.getMonth()};
+  });
+  return {screen:'picker', popupSeen:false, consent:[false,false], loc:(sv=>({id:sv.id,tag:sv.tag,label:sv.name,addr:sv.addr,z:sv.z}))(SAVED[profIdx][0]), p, booked, dismissed:{}, booking:null};
+}
+function fmtD(iso){ const d=new Date(iso+'T12:00:00'); return `${d.getDate()} ${MES[d.getMonth()]} ${d.getFullYear()}`; }
+function fmtDL(iso){ const d=new Date(iso+'T12:00:00'); return `${d.getDate()} de ${MESL[d.getMonth()].toLowerCase()}`; }
+function nextDue(iso,key){ const d=new Date(iso+'T12:00:00'); d.setMonth(d.getMonth()+(EVERY[key]||12)); return `${MESL[d.getMonth()].toLowerCase()} ${d.getFullYear()}`; }
+const LBL = {
+  fam:{mama:'cáncer de mama',colon:'cáncer de colon',prostata:'cáncer de próstata',cardio:'enfermedad cardíaca',diabetes:'diabetes',piel:'cáncer de piel'},
+  cond:{hta:'Presión alta',diabetes:'Diabetes',colesterol:'Colesterol alto',asma:'Asma / EPOC'},
+  smoke:{no:'No fuma',ex:'Ex fumador/a',si:'Fumador/a'},
+  last:{'<1':'hace menos de 1 año','1-2':'hace 1 a 2 años','>2':'hace más de 2 años'},
+  done:{clinico:'Chequeo clínico completo',lab:'Laboratorio',odonto:'Odontología',pap:'PAP',mamo:'Mamografía',oftalmo:'Oftalmología',cardio:'ECG'}
+};
+S = fresh();
+
+const $ = s => document.querySelector(s);
+const screenEl = $('#screen'), overlay = $('#overlay'), tabbar = $('#tabbar');
+
+function setClock(){ const d=new Date(); $('#clock').textContent = d.getHours()+':'+String(d.getMinutes()).padStart(2,'0'); }
+setClock(); setInterval(setClock, 30000);
+
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
+
+function flowSync(){
+  const order=['home','consent','loading','results','success'];
+  const key = S.screen==='booking'?'results':S.screen;
+  const idx = order.indexOf(key);
+  document.querySelectorAll('#flow li').forEach((li,i)=>{
+    li.className = i<idx?'done':(i===idx?'on':'');
+  });
+}
+
+function go(screen){
+  S.screen = screen; closeOverlay(true);
+  render(); screenEl.scrollTop = 0; flowSync();
+}
+
+function render(){
+  const map = {picker:rPicker, home:rHome, consent:rConsent, loading:rLoading, results:rResults, success:rSuccess};
+  screenEl.innerHTML = `<div class="page page-${S.screen}">${map[S.screen]()}</div>`;
+  const key = S.screen+'|'+view;
+  if(key===render._last) screenEl.querySelectorAll('.fade-in').forEach(e=>e.classList.remove('fade-in'));
+  render._last = key;
+  const tabs = (S.screen==='home'||S.screen==='results'||S.screen==='success');
+  tabbar.style.display = tabs?'':'none';
+  document.getElementById('device').classList.toggle('notabs',!tabs);
+  rTabbar();
+  if(S.screen==='loading') runLoading();
+}
+
+function rTabbar(){
+  const t = (k,ic,l,extra='') => `<button class="${(S.screen===k||(k==='results'&&S.screen==='success'))?'on':''}" onclick="${k==='results'?'openPlany()':(k==='home'?"go('home')":"toast('Sección no incluida en el prototipo')")}"><span class="${extra}" style="display:grid">${ic}</span>${l}</button>`;
+  tabbar.innerHTML = t('home',I.home,'Inicio') + t('turnos',I.cal,'Turnos') + t('results',I.plany,'Plany', S.popupSeen&&!recs.length?'newdot':'') + t('cred',I.card,'Credencial') + `<button onclick="toPicker()">${I.user}Perfil</button>`;
+}
+
+/* ================= HOME ================= */
+function rHome(){
+  const nd = new Date(today); nd.setDate(nd.getDate()+9);
+  return `<div class="fade-in">
+  <div class="home-head">
+    <button class="avatar" onclick="toPicker()" title="Cambiar afiliado demo">${S.p.name[0]||'M'}</button>
+    <div style="flex:1;min-width:0"><div class="small muted">Buen día</div><div style="font-weight:600;font-size:18px">Hola, ${S.p.name||'Mauri'}</div></div>
+    <button class="back" style="width:40px;height:40px;border-radius:50%;background:var(--paper);display:grid;place-items:center;position:relative">${I.bell}<span style="position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--coral)"></span></button>
+  </div>
+  <div style="padding:10px 20px 0">${locChip()}</div>
+  <div class="hcols"><div class="hcol">
+  <div class="cred" style="margin-top:12px">
+    <div class="lbl">Credencial digital</div>
+    <div style="font-size:17px;font-weight:500;margin-top:6px;position:relative;z-index:1">Plan ${S.p.plan} · Titular</div>
+    <div style="display:flex;justify-content:space-between;margin-top:22px;font-size:13px;opacity:.85;position:relative;z-index:1"><span>N.º 80 0012 3456 7/01</span><span>Vto 12/27</span></div>
+  </div>
+  <div class="grid-actions">
+    <button class="qa" onclick="toast('Sección no incluida en el prototipo')"><span class="ic">${I.cal}</span>Turnos</button>
+    <button class="qa" onclick="toast('Sección no incluida en el prototipo')"><span class="ic">${I.chat}</span>Switty</button>
+    <button class="qa" onclick="toast('Sección no incluida en el prototipo')"><span class="ic">${I.map}</span>Cartilla</button>
+    <button class="qa new" onclick="openPlany()"><span class="ic">${I.plany}</span>Plany</button>
+  </div>
+  </div><div class="hcol">
+  ${recs.length ? `
+  <div class="section-t">Tu plan de prevención <a href="#" onclick="openPlany();return false">Ver todo</a></div>
+  <div class="promo" onclick="openPlany()"><div style="flex:1;position:relative;z-index:1"><div style="font-size:13px;opacity:.9">Plany</div><div style="font-weight:600;font-size:16px;margin-top:2px">${pending().length} chequeos pendientes · ${Object.keys(S.booked).length} agendados</div></div><span style="position:relative;z-index:1">${I.arrow}</span></div>`
+  : `
+  <div class="section-t">Para vos</div>
+  <div class="promo" onclick="openPlany()">
+    <div style="width:46px;height:46px;border-radius:15px;background:rgba(255,255,255,.2);display:grid;place-items:center;flex:none;position:relative;z-index:1">${I.plany}</div>
+    <div style="flex:1;position:relative;z-index:1"><div style="font-weight:600;font-size:16px">Conocé Plany</div><div style="font-size:13px;opacity:.92;margin-top:2px">Tu plan de prevención personalizado en 2 minutos.</div></div>
+  </div>`}
+  <div class="section-t">Próximo turno <a href="#" onclick="return false">Ver turnos</a></div>
+  <div class="card appt">
+    <div class="date"><b>${nd.getDate()}</b><span>${MES[nd.getMonth()]}</span></div>
+    <div style="flex:1"><div style="font-weight:500">Traumatología</div><div class="small muted">Dra. Laura Méndez · 10:30</div><div class="small muted">${LOCS[S.loc.z].c[0].n}</div></div>
+  </div>
+  ${recs.length ? '' : `<div class="card" style="margin:12px 20px 0;display:flex;gap:12px;align-items:center;background:var(--amber-soft);box-shadow:none">
+    <span style="color:var(--amber)">${I.bell}</span>
+    <div class="small" style="color:#7A5310;line-height:1.4"><b style="font-weight:600">¿Sabías?</b> Al reservar este turno también podés revisar tus chequeos preventivos pendientes.</div></div>`}
+  </div></div>
+  <div style="height:24px"></div>
+  </div>`;
+}
+
+function showPopup(){
+  if(S.screen!=='home') return;
+  S.popupSeen = true;
+  overlay.className = 'overlay center';
+  overlay.innerHTML = `<div class="popup" style="position:relative">
+    <button class="close-x" onclick="dismissPopup()" aria-label="Cerrar">${I.x}</button>
+    <div class="popup-hero">
+      <svg class="wave" width="220" height="200" viewBox="0 0 220 200" fill="none"><path d="M20 10c80 0 120 40 100 100s60 90 90 80" stroke="#fff" stroke-width="22" stroke-linecap="round"/></svg>
+      <span class="tag">NUEVO EN TU APP</span>
+      <h2>Plany</h2>
+      <p>Tu plan de prevención personalizado, con los chequeos que te tocan según tu edad e historia.</p>
+    </div>
+    <div class="popup-body">
+      <div class="feat"><span class="fi">${I.spark}</span><div><b>Recomendaciones a tu medida</b><div class="muted small">Según tu edad, sexo e historia clínica. Sin formularios.</div></div></div>
+      <div class="feat"><span class="fi">${I.cal}</span><div><b>Turnos en un clic</b><div class="muted small">Cerca tuyo y cubiertos por tu plan.</div></div></div>
+      <div class="feat"><span class="fi">${I.shield}</span><div><b>Validado por la Dirección Médica</b><div class="muted small">Basado en guías de prevención oficiales.</div></div></div>
+      <button class="btn btn-primary" style="margin-top:8px" onclick="go('consent')">Armar mi plan ${I.arrow}</button>
+      <button class="btn btn-secondary" style="height:44px;margin-top:4px" onclick="dismissPopup()">Ahora no</button>
+    </div>
+  </div>`;
+  requestAnimationFrame(()=>overlay.classList.add('show'));
+  rTabbar();
+}
+function dismissPopup(){ closeOverlay(); toast('Podés encontrar Plany en el menú'); }
+function closeOverlay(instant){
+  overlay.classList.remove('show');
+  if(instant){ overlay.innerHTML=''; return; }
+  setTimeout(()=>{ if(!overlay.classList.contains('show')) overlay.innerHTML=''; },350);
+}
+function openPlany(){ go(recs.length?'results':'consent'); }
+
+/* ================= CONSENT ================= */
+function rConsent(){
+  const c = S.consent;
+  return `<div class="fade-in">
+  <div class="topnav"><button class="back" onclick="go('home')">${I.back}</button></div>
+  <div class="hero-mini">
+    <div class="logo">Plany</div>
+    <div class="h-title" style="margin-top:6px">Antes de empezar</div>
+    <p class="muted" style="font-size:14px;margin-top:6px;line-height:1.5">Para recomendarte chequeos, Plany usa los datos de tu perfil (edad y sexo) y tu <b style="color:var(--ink);font-weight:500">historia clínica</b>: consultas, estudios y antecedentes registrados en la red. Así los usamos:</p>
+    <div class="list-check">
+      <div>${I.checkC}<span>Solo para armar tu plan de prevención. <b style="color:var(--ink);font-weight:500">Nunca para modificar tu cuota ni tu cobertura.</b></span></div>
+      <div>${I.checkC}<span>Las recomendaciones salen de reglas aprobadas por la Dirección Médica; la IA solo las personaliza.</span></div>
+      <div>${I.checkC}<span>Podés revocar este permiso cuando quieras desde tu perfil.</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="checkrow ${c[0]?'on':''}" onclick="S.consent[0]=!S.consent[0];render()"><span class="box">${I.check}</span><span>Acepto que Swiss Medical use los datos de mi perfil y mi historia clínica para generar recomendaciones preventivas. <u>Ver términos</u></span></div>
+      <div class="checkrow ${c[1]?'on':''}" onclick="S.consent[1]=!S.consent[1];render()"><span class="box">${I.check}</span><span>Quiero recibir recordatorios de mis chequeos por notificación o mail <span style="color:var(--ink-3)">(opcional)</span>.</span></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:16px;color:var(--ink-3);font-size:12px">${I.lock} Datos protegidos según Ley 25.326 de Protección de Datos Personales.</div>
+  </div>
+  <div class="fixed-cta"><button class="btn btn-primary" ${c[0]?'':'disabled'} onclick="go('loading')">Ver mi plan ${I.arrow}</button></div>
+  </div>`;
+}
+
+/* ================= LOADING ================= */
+function rLoading(){
+  return `<div class="loading">
+    <div class="orb"><div class="core">${I.plany}</div></div>
+    <div class="h-title" style="font-size:21px">Armando tu plan, ${S.p.name||''}</div>
+    <p class="muted small" style="margin-top:6px">Esto tarda unos segundos.</p>
+    <div class="steps-l" id="lsteps">
+      <div><span class="dot"></span>Leyendo tu historia clínica</div>
+      <div><span class="dot"></span>Aplicando guías de la Dirección Médica</div>
+      <div><span class="dot"></span>Verificando cobertura de tu plan</div>
+      <div><span class="dot"></span>Buscando turnos cerca tuyo</div>
+    </div></div>`;
+}
+function runLoading(){
+  const items=[...document.querySelectorAll('#lsteps div')];
+  let i=0;
+  const tick=()=>{
+    if(S.screen!=='loading') return;
+    items.forEach((el,j)=>{ el.className = j<i?'ok':(j===i?'run':''); if(j<i) el.querySelector('.dot').innerHTML=I.check; });
+    if(i>items.length){ recs = engine(S.p); view='recs'; go('results'); return; }
+    i++; setTimeout(tick, i===1?250:650);
+  };
+  tick();
+}
+
+/* ================= ENGINE (reglas clínicas acotadas = guardrails) ================= */
+function engine(p){
+  const age=+p.age, F=p.sex==='F', M=p.sex==='M', fam=p.fam, cond=p.cond, done=p.done;
+  const imc = (p.height&&p.weight)? (+p.weight/((+p.height/100)**2)) : null;
+  const out=[];
+  const add=(o)=>out.push(Object.assign({prio:'media',cover:'Cubierto 100% · PMO'},o));
+
+  const overdue = p.last==='>2'||p.last==='nr';
+  add({id:'clinico', title:'Control clínico anual', spec:'Clínica médica', icon:'steth', freq:'1 vez por año',
+    prio: overdue?'alta':'media',
+    why: overdue ? `<b>${p.last==='nr'?'No recordás':'Pasaron más de 2 años desde'}</b> tu último chequeo general. Es la puerta de entrada: control de presión, peso y revisión de tus antecedentes.` : 'Recomendado <b>una vez por año</b> para todos los adultos: control de presión arterial, peso y revisión general.',
+    prep:null, doneKey:'clinico'});
+
+  const labRisk = cond.includes('diabetes')||cond.includes('colesterol')||fam.includes('diabetes')||(imc&&imc>=30);
+  add({id:'lab', title:'Laboratorio de rutina', spec:'Análisis de sangre y orina', icon:'flask', freq: labRisk?'1 vez por año':'Cada 1–2 años',
+    prio: labRisk?'alta':'media',
+    why: labRisk ? `Por ${[fam.includes('diabetes')&&'tus antecedentes familiares de diabetes',cond.includes('diabetes')&&'tu diagnóstico de diabetes',cond.includes('colesterol')&&'tu colesterol alto',(imc&&imc>=30)&&'tu índice de masa corporal'].filter(Boolean).join(' y ')}, conviene controlar <b>glucemia y perfil lipídico</b> todos los años.` : 'Incluye <b>glucemia, colesterol y función renal</b>. Detecta alteraciones que no dan síntomas.',
+    prep:'Requiere <b>ayuno de 8 a 12 horas</b>. Podés tomar agua.', doneKey:'lab'});
+
+  if(F && age>=25 && age<=65) add({id:'pap', title: age>=30?'PAP y test de VPH':'Papanicolaou (PAP)', spec:'Ginecología', icon:'ribbon', freq: age>=30?'Cada 3 a 5 años':'Cada 3 años',
+    why:`Para mujeres de <b>25 a 65 años</b> es el estudio clave para la prevención del cáncer de cuello uterino${age>=30?'; desde los 30 se suma el test de VPH':''}.`,
+    prep:'Evitá relaciones sexuales y óvulos 48 h antes. No se realiza durante la menstruación.', doneKey:'pap'});
+
+  const mamaFam = fam.includes('mama');
+  if(F && (age>=40 || (mamaFam && age>=30))) add({id:'mamo', title:'Mamografía', spec:'Diagnóstico por imágenes', icon:'ribbon', freq:'1 vez por año',
+    prio: mamaFam?'alta':'media',
+    why: mamaFam && age<40 ? `Tenés <b>antecedentes familiares de cáncer de mama</b>: se recomienda adelantar el control y conversarlo con tu ginecólogo/a.` : 'Recomendada <b>anualmente desde los 40 años</b> para detectar lesiones antes de que sean palpables.',
+    prep:'No uses desodorante, talco ni cremas en axilas y mamas el día del estudio.', doneKey:'mamo'});
+
+  const colonFam = fam.includes('colon');
+  if(age>=50 || (colonFam && age>=40)) add({id:'colon', title: colonFam?'Colonoscopía':'Test de sangre oculta en materia fecal', spec:'Gastroenterología', icon:'shield', freq: colonFam?'Cada 5 años':'Cada 1–2 años',
+    prio: colonFam?'alta':'media',
+    why: colonFam ? 'Por tus <b>antecedentes familiares de cáncer de colon</b>, la recomendación es una colonoscopía a partir de los 40 años.' : 'El rastreo de cáncer colorrectal está indicado <b>desde los 50 años</b>.',
+    prep: colonFam?'Requiere preparación intestinal el día previo; te enviamos las indicaciones.':'Se retira un kit en el centro y se entrega la muestra.', doneKey:null});
+
+  const prosFam = fam.includes('prostata');
+  if(M && (age>=50 || (prosFam && age>=45))) add({id:'uro', title:'Consulta urológica (PSA)', spec:'Urología', icon:'steth', freq:'Según indicación médica',
+    why: prosFam ? 'Por <b>antecedentes familiares de cáncer de próstata</b> se sugiere conversar el control desde los 45 años.' : 'Desde los 50 años se recomienda <b>conversar con un urólogo</b> si realizar el PSA, evaluando beneficios y riesgos.', doneKey:null});
+
+  const cvFactors = [age>=40, p.smoke==='si', cond.includes('hta'), cond.includes('colesterol'), cond.includes('diabetes'), fam.includes('cardio')].filter(Boolean).length;
+  if(cvFactors>=1 && (age>=40 || cvFactors>=2 || fam.includes('cardio'))) add({id:'cardio', title:'Evaluación cardiológica', spec:'Cardiología · ECG', icon:'heart', freq: cvFactors>=2?'1 vez por año':'Cada 2 años',
+    prio: cvFactors>=2?'alta':'media',
+    why:`Sumás <b>${cvFactors} factor${cvFactors>1?'es':''} de riesgo cardiovascular</b> (${[age>=40&&'edad',p.smoke==='si'&&'tabaco',cond.includes('hta')&&'presión alta',cond.includes('colesterol')&&'colesterol',cond.includes('diabetes')&&'diabetes',fam.includes('cardio')&&'antecedente familiar'].filter(Boolean).join(', ')}). Un electrocardiograma y consulta permiten anticiparse.`,
+    doneKey:'cardio'});
+
+  if(p.smoke==='si') add({id:'tabaco', title:'Programa para dejar de fumar', spec:'Neumonología · Consejería', icon:'lungs', freq:'Acompañamiento de 3 meses', prio:'alta',
+    why:'Dejar de fumar es <b>la medida preventiva de mayor impacto</b> en tu salud. El programa incluye acompañamiento profesional y, si corresponde, tratamiento.', doneKey:null});
+  if((p.smoke==='si'||p.smoke==='ex') && age>=40 || cond.includes('asma')) add({id:'espiro', title:'Espirometría', spec:'Neumonología', icon:'lungs', freq:'Cada 2 años',
+    why: cond.includes('asma')?'Por tu diagnóstico de asma/EPOC, la espirometría permite <b>controlar la función pulmonar</b>.':'Por antecedente de <b>tabaquismo y edad mayor a 40</b>, se recomienda evaluar la función pulmonar.', doneKey:null});
+
+  if(age>=40 || cond.includes('diabetes')) add({id:'oftalmo', title:'Control oftalmológico', spec:'Oftalmología', icon:'eye', freq: cond.includes('diabetes')?'1 vez por año':'Cada 2 años',
+    why: cond.includes('diabetes')?'La diabetes puede afectar la retina: se recomienda <b>fondo de ojo anual</b>.':'Desde los 40 años aumenta el riesgo de <b>glaucoma y presbicia</b>: control con medición de presión ocular.', doneKey:'oftalmo'});
+
+  if(fam.includes('piel')) add({id:'derma', title:'Control de lunares', spec:'Dermatología', icon:'sun', freq:'1 vez por año',
+    why:'Por <b>antecedentes familiares de cáncer de piel</b>, un control dermatológico anual permite detectar cambios a tiempo.', doneKey:null});
+
+  if(imc && (imc>=30 || (imc>=25 && p.activity==='baja'))) add({id:'nutri', title:'Consulta con nutrición', spec:'Nutrición', icon:'apple', freq:'Según plan', cover:'Cubierto · coseguro bajo',
+    why:`Tu índice de masa corporal es <b>${imc.toFixed(1)}</b>${p.activity==='baja'?' y hacés poca actividad física':''}. Un plan alimentario personalizado ayuda a prevenir diabetes y enfermedad cardiovascular.`, doneKey:null});
+
+  add({id:'odonto', title:'Control odontológico', spec:'Odontología', icon:'tooth', freq:'Cada 6 a 12 meses',
+    why:'Limpieza y control de caries y encías. Recomendado <b>al menos una vez por año</b>.', doneKey:'odonto'});
+
+  add({id:'vacunas', title:'Revisión de vacunas', spec:'Vacunatorio', icon:'syringe', freq:'Según calendario nacional',
+    prio: cond.length?'alta':'media',
+    why: cond.length ? 'Por tener una condición crónica, te corresponde la <b>antigripal anual</b> y revisar neumococo, doble adulto y hepatitis B.' : 'Revisamos tu <b>doble adulto (cada 10 años) y hepatitis B</b> según el Calendario Nacional de Vacunación.', doneKey:null});
+
+  out.forEach(r=>{
+    if(!r.doneKey) return;
+    const h = p.hist.find(x=>x.key===r.doneKey), inc = p.hist.find(x=>(x.incl||[]).includes(r.doneKey));
+    if(h){ r.upToDate=true; r.doneInfo={date:h.date, where:h.where}; }
+    else if(inc){ r.upToDate=true; r.doneInfo={date:inc.date, where:inc.where, note:'Incluido en tu chequeo clínico completo'}; }
+  });
+  // ordenar: alta primero
+  out.sort((a,b)=>(a.prio==='alta'?0:1)-(b.prio==='alta'?0:1));
+  return out;
+}
+const pending = ()=>recs.filter(r=>!r.upToDate && !S.dismissed[r.id]);
+
+/* ================= RESULTS ================= */
+function recCard(r){
+  const b = S.booked[r.id];
+  const icCls = r.prio==='alta'?'':'m';
+  return `<div class="rec ${b?'booked':''}" id="rec-${r.id}">
+    <div class="rec-top">
+      <div class="rec-ic ${icCls}">${I[r.icon]||I.steth}</div>
+      <div style="flex:1;min-width:0">
+        <h3>${r.title}</h3>
+        <div class="meta">${r.spec} · ${r.freq}</div>
+      </div>
+    </div>
+    <div class="chips">
+      ${r.prio==='alta'?'<span class="chip coral">Prioridad alta</span>':'<span class="chip amber">Este año</span>'}
+      <span class="chip green">${I.check} ${r.cover}</span>
+      <span class="chip gray">${I.map.replace('width="22" height="22"','width="12" height="12"')} a ${LOCS[S.loc.z].c[0].dist}</span>
+    </div>
+    <button class="why-btn" onclick="toggleWhy('${r.id}')">${I.info} ¿Por qué me recomienda esto? <span id="chev-${r.id}" style="transition:.25s;display:inline-flex">${I.chev}</span></button>
+    <div class="why" id="why-${r.id}"><div class="why-in">${r.why}<div style="margin-top:8px;font-size:11.5px;color:var(--ink-3)">Regla clínica aprobada por la Dirección Médica · Revisá siempre con tu médico de cabecera.</div></div></div>
+    <div class="rec-act">
+      <button class="btn btn-primary" onclick="openBooking('${r.id}')">${I.cal} Sacar turno</button>
+      <button class="btn btn-outline" onclick="alreadyDone('${r.id}')">Ya me lo hice</button>
+    </div>
+    <div class="booked-bar">${I.checkC} ${b?`${b.pre?'Ya tenés turno':'Agendado'} · ${b.dayLabel} ${b.time} hs · ${b.center}`:''}</div>
+  </div>`;
+}
+function toggleWhy(id){
+  const w=document.getElementById('why-'+id), c=document.getElementById('chev-'+id);
+  w.classList.toggle('open'); c.style.transform = w.classList.contains('open')?'rotate(180deg)':'';
+}
+function rResults(){
+  const list = pending();
+  const alta = list.filter(r=>r.prio==='alta'), media = list.filter(r=>r.prio!=='alta');
+  const upd = recs.filter(r=>r.upToDate || S.dismissed[r.id]);
+  const nb = Object.keys(S.booked).length;
+  const nav = `<div class="topnav"><button class="back" onclick="go('home')">${I.back}</button><span class="ttl">Plany</span><span class="right" style="min-width:0">${locChip()}</span></div>`;
+  const head = `
+  <div class="res-head fade-in">
+    <div style="font-size:13px;opacity:.9;position:relative;z-index:1">Tu plan de prevención ${today.getFullYear()}–${today.getFullYear()+1}</div>
+    <div style="display:flex;align-items:baseline;gap:10px;position:relative;z-index:1;margin-top:6px"><span class="big">${list.length}</span><span style="font-size:15px">chequeos recomendados<br>para ${S.p.name||'vos'}</span></div>
+    <div class="ring">
+      <div class="stat"><b>${alta.length}</b>prioridad alta</div>
+      <div class="stat"><b>${nb}</b>agendados</div>
+      <div class="stat"><b>${upd.length}</b>al día</div>
+    </div>
+  </div>
+  <div class="disclaimer">${I.info}<span>Estas son <b style="font-weight:600">sugerencias preventivas</b> según tu edad, sexo e historia clínica. No son un diagnóstico: consultá siempre con tu médico de cabecera.</span></div>
+  ${doneBanner()}
+  ${profileCard()}`;
+  const tabs = `<div class="tabs"><button class="${view==='recs'?'on':''}" onclick="view='recs';render()">Recomendaciones</button><button class="${view==='cal'?'on':''}" onclick="view='cal';render()">Calendario</button></div>`;
+  const wrap = b => `<div>${nav}<div class="rcols"><div class="colL">${head}</div><div class="colR">${tabs}${b}</div></div></div>`;
+  if(view==='cal') return wrap(rCalendar(list));
+  return wrap(`
+    ${alta.length?`<div class="grp-t"><span style="width:8px;height:8px;border-radius:50%;background:var(--coral)"></span>Para hacer pronto</div><div class="rgrid">${alta.map(recCard).join('')}</div>`:''}
+    ${media.length?`<div class="grp-t"><span style="width:8px;height:8px;border-radius:50%;background:var(--amber)"></span>Durante este año</div><div class="rgrid">${media.map(recCard).join('')}</div>`:''}
+    ${upd.length?`<div class="grp-t"><span style="width:8px;height:8px;border-radius:50%;background:var(--green)"></span>Ya estás al día</div><div class="rgrid ugrid">${upd.map(r=>{const d=r.doneInfo; return `<div class="upd"><span class="ok">${I.check}</span><div style="flex:1;min-width:0"><div style="color:var(--ink);font-weight:500">${r.title}</div>${d?`<div class="small">${d.note?d.note+' · ':''}Realizado el ${fmtD(d.date)} · ${d.where}</div><div class="small" style="color:var(--green);margin-top:3px;font-weight:500">Próximo control: ${nextDue(d.date,r.doneKey)}</div>`:`<div class="small">Marcado por vos: ${S.dismissed[r.id]}</div>`}</div></div>`}).join('')}</div>`:''}
+    <div style="height:20px"></div>`);
+}
+function rCalendar(list){
+  const months = {};
+  let mi = 0;
+  list.forEach((r,i)=>{
+    let off;
+    if(S.booked[r.id]) off = S.booked[r.id].monthOff;
+    else off = r.prio==='alta' ? Math.min(Math.floor(i/2),1) : 1 + (mi++ % 6);
+    const d = new Date(today.getFullYear(), today.getMonth()+off, 1);
+    const k = d.getFullYear()*100+d.getMonth();
+    (months[k] = months[k]||{d,items:[]}).items.push(r);
+  });
+  const keys = Object.keys(months).sort();
+  return `<div class="tl fade-in">${keys.map((k,idx)=>{const m=months[k];return `<div class="tl-m">
+    <div class="rail"><span class="mon">${MES[m.d.getMonth()]}</span>${idx<keys.length-1?'<span class="line"></span>':''}</div>
+    <div class="tl-items">${m.items.map(r=>`<div class="tl-it"><div>${r.title}<small>${r.spec}</small></div>${S.booked[r.id]?`<span class="chip green">${S.booked[r.id].dayLabel}</span>`:`<button class="chip coral" onclick="openBooking('${r.id}')">Agendar</button>`}</div>`).join('')}</div>
+  </div>`}).join('')}
+  <div class="card" style="display:flex;gap:10px;align-items:center;font-size:12.5px;color:var(--ink-2);margin-top:4px">${I.bell}<span>${S.consent[1]?'Te vamos a avisar 2 semanas antes de cada chequeo.':'Activá los recordatorios para que te avisemos antes de cada chequeo.'}</span></div>
+  </div>`;
+}
+
+/* ===== "Ya me lo hice" ===== */
+function alreadyDone(id){
+  const r = recs.find(x=>x.id===id);
+  overlay.className='overlay';
+  overlay.innerHTML = `<div class="sheet"><div class="grab"></div>
+    <h3>${r.title}</h3><p class="muted small" style="margin-top:4px">Contanos para que Plany aprenda y no te lo vuelva a sugerir.</p>
+    <div class="fb-opts">
+      <button class="opt" onclick="markDone('${id}','Hecho en otro centro')">Me lo hice en otro centro (fuera de la red)</button>
+      <button class="opt" onclick="markDone('${id}','Lo hablo con mi médico')">Prefiero hablarlo con mi médico</button>
+      <button class="opt" onclick="markDone('${id}','No me interesa')">No me interesa por ahora</button>
+    </div>
+    <button class="btn btn-secondary" style="margin-top:8px" onclick="closeOverlay()">Cancelar</button></div>`;
+  requestAnimationFrame(()=>overlay.classList.add('show'));
+}
+function markDone(id,reason){
+  closeOverlay();
+  const el=document.getElementById('rec-'+id); if(el) el.classList.add('gone');
+  setTimeout(()=>{ S.dismissed[id]=reason; render(); toast('Listo, actualizamos tu plan'); },320);
+}
+
+/* ===== Booking ===== */
+const centers = ()=>LOCS[S.loc.z].c;
+function nextDays(n){ const out=[]; const d=new Date(today); while(out.length<n){ d.setDate(d.getDate()+1); if(d.getDay()!==0) out.push(new Date(d)); } return out; }
+function openBooking(id){
+  const r = recs.find(x=>x.id===id);
+  S.booking = {id, c:0, d:1, t:null};
+  drawBooking(r);
+  requestAnimationFrame(()=>overlay.classList.add('show'));
+}
+function drawBooking(r){
+  r = r || recs.find(x=>x.id===S.booking.id);
+  const B=S.booking, days=nextDays(8), times=['08:00','08:30','09:15','10:00','11:30','14:00','15:45','17:30'];
+  const taken = i => ((i*3 + B.d*5 + B.c*2) % 7)===0;
+  overlay.className='overlay show';
+  overlay.innerHTML = `<div class="sheet"><div class="grab"></div>
+    <div style="display:flex;gap:12px;align-items:center"><div class="rec-ic">${I[r.icon]}</div><div><h3>${r.title}</h3><div class="small muted">${r.spec}</div></div></div>
+    <div class="lbl-s" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>Centros cerca de <b style="color:var(--ink);font-weight:500">${S.loc.label}</b></span><button style="color:var(--coral);font-weight:500;font-size:13px" onclick="openLoc(true)">Cambiar</button></div>
+    ${centers().map((c,i)=>`<button class="center ${B.c===i?'on':''}" onclick="S.booking.c=${i};S.booking.t=null;drawBooking()"><span class="rd"></span><span style="flex:1"><b>${c.n}</b><small>${c.dist} · ${c.addr}</small></span>${i===0?'<span class="chip green">Más cerca</span>':''}</button>`).join('')}
+    <div class="lbl-s">Día</div>
+    <div class="days">${days.map((d,i)=>`<button class="day ${B.d===i?'on':''}" onclick="S.booking.d=${i};S.booking.t=null;drawBooking()">${DIA[d.getDay()]}<b>${d.getDate()}</b>${MES[d.getMonth()]}</button>`).join('')}</div>
+    <div class="lbl-s">Horario</div>
+    <div class="times">${times.map((t,i)=>`<button class="time ${B.t===t?'on':''}" ${taken(i)?'disabled':''} onclick="S.booking.t='${t}';drawBooking()">${t}</button>`).join('')}</div>
+    ${r.prep?`<div class="prep">${I.info}<span><b style="font-weight:600">Preparación:</b> ${r.prep}</span></div>`:''}
+    <button class="btn btn-primary" style="margin-top:18px" ${B.t?'':'disabled'} onclick="confirmBooking()">Confirmar turno</button>
+    <button class="btn btn-secondary" style="height:44px" onclick="closeOverlay()">Cancelar</button>
+  </div>`;
+}
+function confirmBooking(){
+  const B=S.booking, d=nextDays(8)[B.d];
+  const monthOff = (d.getFullYear()-today.getFullYear())*12 + d.getMonth()-today.getMonth();
+  S.booked[B.id] = {center:centers()[B.c].n, centerD:centers()[B.c].addr, time:B.t, date:d, dayLabel:`${DIA[d.getDay()]} ${d.getDate()} ${MES[d.getMonth()]}`, monthOff};
+  go('success');
+}
+function rSuccess(){
+  const B=S.booked[S.booking.id], r=recs.find(x=>x.id===S.booking.id);
+  return `<div class="success fade-in">
+    <div class="tick"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <div class="h-title">¡Turno confirmado!</div>
+    <p class="muted" style="font-size:14px;margin-top:6px">Un paso más en tu plan de prevención.</p>
+    <div class="ticket">
+      <div class="r"><span>Estudio</span><b>${r.title}</b></div>
+      <div class="r"><span>Fecha</span><b>${DIA[B.date.getDay()]} ${B.date.getDate()} de ${MESL[B.date.getMonth()].toLowerCase()} · ${B.time} hs</b></div>
+      <div class="r"><span>Lugar</span><b>${B.center}<br><span style="font-weight:400;color:var(--ink-3);font-size:12px">${B.centerD}</span></b></div>
+      <div class="r"><span>Cobertura</span><b style="color:var(--green)">${r.cover}</b></div>
+    </div>
+    ${r.prep?`<div class="prep" style="text-align:left;margin:0 0 16px">${I.bell}<span>Te vamos a recordar 48 h antes: ${r.prep}</span></div>`:''}
+    <button class="btn btn-outline" onclick="toast('Evento agregado a tu calendario')">${I.cal} Agregar al calendario</button>
+    <button class="btn btn-primary" style="margin-top:10px" onclick="view='recs';go('results')">Volver a mi plan · ${pending().filter(x=>!S.booked[x.id]).length} pendientes</button>
+  </div>`;
+}
+
+/* ================= CONTROLS ================= */
+function restart(){ S=fresh(); recs=[]; view='recs'; go('picker'); }
+function toPicker(){ recs=[]; view='recs'; S=fresh(); go('picker'); }
+function pickProfile(i){ profIdx=i; S=fresh(); recs=[]; view='recs'; go('home'); setTimeout(showPopup,1000); }
+function rPicker(){
+  const tag=(t,c)=>`<span class="chip ${c}">${t}</span>`;
+  return `<div class="fade-in" style="padding:10px 20px 28px">
+    <span class="chip coral" style="margin-bottom:14px">PRE-ENTREGA · DEMO</span>
+    <div style="font-size:40px;color:var(--coral);font-weight:700;letter-spacing:-1px;line-height:1">Plany</div>
+    <div class="h-title" style="margin-top:12px">¿Con qué afiliado querés probar?</div>
+    <p class="muted small" style="margin:6px 0 20px;line-height:1.5">Cada perfil simula la información que la app ya tiene del afiliado: datos personales, ubicación e historia clínica.</p>
+    <div class="pkgrid">${PROFILES.map((p,i)=>`<button class="pk" onclick="pickProfile(${i})">
+      <span class="avatar">${p.name[0]}</span>
+      <span style="flex:1;min-width:0">
+        <span style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b style="font-weight:600;font-size:16px">${p.name}</b><span class="small muted">${p.age} años · ${p.sex==='F'?'Mujer':'Hombre'}</span></span>
+        <span class="small muted" style="display:block;margin-top:4px;line-height:1.45">${p.blurb}</span>
+        <span class="tags">${tag(LOCS[p.loc].n,'gray')}${p.hist.some(h=>h.key==='clinico')?tag('Chequeo completo hecho','green'):''}${p.upcoming.length?tag('Turno ya sacado','blue'):''}${p.fam.length?tag('Antecedentes familiares','amber'):''}</span>
+      </span>
+    </button>`).join('')}</div>
+    <p style="text-align:center;font-size:11.5px;color:var(--ink-3);margin-top:14px;line-height:1.5">Prototipo académico · GPD II Equipo 5<br>Datos ficticios. Las recomendaciones no constituyen indicación médica.</p>
+  </div>`;
+}
+function doneBanner(){
+  const h=S.p.hist.find(x=>x.key==='clinico'); if(!h) return '';
+  const inc=(h.incl||[]).map(k=>({lab:'laboratorio',cardio:'electrocardiograma'}[k]||LBL.done[k]));
+  return `<div class="card donebn" style="margin:12px 20px 0;background:var(--green-soft);box-shadow:none;display:flex;gap:12px;align-items:flex-start">
+    <span style="color:var(--green);flex:none;margin-top:1px">${I.checkC}</span>
+    <div style="font-size:13px;color:#1F6B49;line-height:1.5"><b style="font-weight:600">Ya te hiciste tu chequeo clínico completo</b> el ${fmtDL(h.date)} en ${h.where}.${inc.length?` Incluyó ${inc.join(' y ')}, así que no te los volvemos a recomendar por ahora.`:''} Te avisamos en ${nextDue(h.date,'clinico')} para el próximo.</div>
+  </div>`;
+}
+function toggleProf(){ const w=document.getElementById('profDet'), c=document.getElementById('profChev'); w.classList.toggle('open'); c.style.transform=w.classList.contains('open')?'rotate(180deg)':''; }
+function profileCard(){
+  const p=S.p;
+  const rows = [
+    ['Perfil', `${p.age} años · ${p.sex==='F'?'Femenino':'Masculino'}`],
+    ['Antecedentes familiares', p.fam.length? p.fam.map(f=>LBL.fam[f]).join(', ').replace(/^./,m=>m.toUpperCase()) : 'Sin registros'],
+    ['Condiciones', p.cond.length? p.cond.map(c=>LBL.cond[c]).join(', ') : 'Sin registros'],
+    ['Hábitos', LBL.smoke[p.smoke]],
+    ['Último chequeo general', LBL.last[p.last].replace(/^./,m=>m.toUpperCase())],
+    ['Estudios del último año', p.done.length? p.done.map(d=>LBL.done[d]).join(', ') : 'Ninguno'],
+  ];
+  return `<div class="card profcard" style="margin:12px 20px 0;padding:14px 16px">
+    <button style="display:flex;align-items:center;gap:10px;width:100%;text-align:left" onclick="toggleProf()">
+      <span style="width:32px;height:32px;border-radius:10px;background:var(--cream);display:grid;place-items:center;flex:none">${I.user.replace('<svg ','<svg width="18" height="18" ')}</span>
+      <span style="flex:1;font-size:13.5px;font-weight:500">Datos usados de tu historia clínica</span>
+      <span id="profChev" style="display:inline-flex;transition:.25s;color:var(--ink-3)">${I.chev}</span>
+    </button>
+    <div class="why" id="profDet"><div style="margin-top:10px">${rows.map(r=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--line);font-size:12.5px"><span style="color:var(--ink-3)">${r[0]}</span><span style="text-align:right">${r[1]}</span></div>`).join('')}
+      <div style="font-size:11.5px;color:var(--ink-3);margin-top:8px">¿Algo no es correcto? Podés actualizarlo con tu médico de cabecera o desde Perfil.</div></div></div>
+  </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
